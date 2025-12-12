@@ -197,7 +197,7 @@ namespace course_work_dotnet
             MessageBox.Show("Программа для кодирования и декодирования деревьев при помощи кода Прюфера\nбИЦ-241\nБирюков Никита\nВариант 4", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
-    // PruferEncoder.cs
+
     public static class PruferEncoder
     {
         public static List<int> EncodeToPrufer(List<(int u, int v)> edges)
@@ -217,7 +217,7 @@ namespace course_work_dotnet
             var prufer = new List<int>();
             var vertices = adjacency.Keys.OrderBy(x => x).ToList();
 
-            for (int i = 0; i < edges.Count - 1; i++) // n = edges.Count + 1 → n - 2 = edges.Count - 1
+            for (int i = 0; i < edges.Count - 1; i++)
             {
                 int leaf = vertices.First(v => degree[v] == 1);
                 int neighbor = adjacency[leaf].Min;
@@ -233,7 +233,6 @@ namespace course_work_dotnet
         }
     }
 
-    // PruferDecoder.cs
     public static class PruferDecoder
     {
         public static List<(int u, int v)> DecodeFromPrufer(List<int> prufer)
@@ -267,7 +266,6 @@ namespace course_work_dotnet
         }
     }
 
-    // EdgeParser.cs
     public static class EdgeParser
     {
         public static List<(int u, int v)> ParseEdges(string input)
