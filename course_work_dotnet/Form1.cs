@@ -8,142 +8,14 @@ namespace course_work_dotnet
 {
     public partial class Form1 : Form
     {
-        private List<(int u, int v)> currentEdges = null; 
+        
+        private List<(int u, int v)> currentEdges = null;
 
         public Form1()
         {
             InitializeComponent();
-            drawingPanel.Paint += drawingPanel_Paint; 
-        }
-
-        private void buttonEncode_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var edges = ParseEdges(textBoxEdges.Text);
-                var prufer = EncodeToPrufer(edges);
-                textBoxPrufer.Text = string.Join(" ", prufer);
-                DrawTree(edges, drawingPanel);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при кодировании:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void buttonDecode_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                var prufer = ParsePrufer(textBoxPrufer.Text);
-                var edges = DecodeFromPrufer(prufer);
-                textBoxEdges.Text = string.Join(",", edges.Select(edge => $"({edge.Item1},{edge.Item2})"));
-                DrawTree(edges, drawingPanel); 
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка при декодировании:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private List<int> EncodeToPrufer(List<(int, int)> edges)
-        {
-            if (edges.Count == 0) return new List<int>();
-
-            int n = edges.Count + 1;
-            var degree = new Dictionary<int, int>();
-            var adjacency = new Dictionary<int, SortedSet<int>>();
-
-            foreach (var (u, v) in edges)
-            {
-                if (!adjacency.ContainsKey(u)) adjacency[u] = new SortedSet<int>();
-                if (!adjacency.ContainsKey(v)) adjacency[v] = new SortedSet<int>();
-                adjacency[u].Add(v);
-                adjacency[v].Add(u);
-            }
-
-            foreach (var v in adjacency.Keys)
-                degree[v] = adjacency[v].Count;
-
-            var prufer = new List<int>();
-            var vertices = adjacency.Keys.OrderBy(x => x).ToList();
-
-            for (int i = 0; i < n - 2; i++)
-            {
-                int leaf = vertices.First(v => degree[v] == 1);
-                int neighbor = adjacency[leaf].Min;
-                prufer.Add(neighbor);
-                degree[leaf]--;
-                degree[neighbor]--;
-                adjacency[neighbor].Remove(leaf);
-                adjacency.Remove(leaf);
-            }
-
-            return prufer;
-        }
-
-        private List<(int, int)> DecodeFromPrufer(List<int> prufer)
-        {
-            int n = prufer.Count + 2;
-            var degree = new Dictionary<int, int>();
-
-            for (int i = 1; i <= n; i++)
-                degree[i] = 1;
-
-            foreach (int v in prufer)
-                degree[v]++;
-
-            var edges = new List<(int, int)>();
-            var set = new SortedSet<int>(degree.Keys.Where(v => degree[v] == 1));
-
-            foreach (int v in prufer)
-            {
-                int leaf = set.Min;
-                set.Remove(leaf);
-                edges.Add((leaf, v));
-                degree[leaf]--;
-                degree[v]--;
-
-                if (degree[v] == 1)
-                    set.Add(v);
-            }
-
-            var remaining = degree.Keys.Where(k => degree[k] == 1).ToList();
-            if (remaining.Count == 2)
-                edges.Add((remaining[0], remaining[1]));
-
-            return edges;
-        }
-
-        private List<(int, int)> ParseEdges(string input)
-        {
-            var edges = new List<(int, int)>();
-            string clean = input.Replace(" ", "");
-            if (string.IsNullOrWhiteSpace(clean)) return edges;
-
-            foreach (var part in clean.Trim('(', ')').Split(new[] { "),(" }, StringSplitOptions.None))
-            {
-                var nums = part.Split(',');
-                if (nums.Length != 2)
-                    throw new ArgumentException("Неверный формат рёбер.");
-                int u = int.Parse(nums[0]);
-                int v = int.Parse(nums[1]);
-                if (u == v)
-                    throw new ArgumentException("Петли запрещены.");
-                edges.Add((Math.Min(u, v), Math.Max(u, v)));
-            }
-
-            int n = edges.SelectMany(e => new[] { e.Item1, e.Item2 }).Distinct().Count();
-            if (edges.Count != n - 1)
-                throw new ArgumentException("Введённый граф не является деревом (должно быть n-1 рёбер).");
-
-            return edges;
-        }
-
-        private List<int> ParsePrufer(string input)
-        {
-            var tokens = input.Split(new char[] { ' ', ',', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            return tokens.Select(int.Parse).ToList();
+            drawingPanel.Paint += drawingPanel_Paint;
+            this.Text = "Кодирование и декодирование с помощью кода Прюфера";
         }
 
         private void DrawTree(List<(int u, int v)> edges, Panel panel)
@@ -247,5 +119,187 @@ namespace course_work_dotnet
                 }
             }
         }
+
+        private void SaveTextToFile(string content, string description, string defaultFileName)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                MessageBox.Show($"Нет данных для сохранения ({description.ToLower()}).", "Пусто",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (var saveFileDialog = new SaveFileDialog())
+            {
+                saveFileDialog.Filter = "Текстовые файлы (*.txt)|*.txt|Все файлы (*.*)|*.*";
+                saveFileDialog.FileName = defaultFileName;
+                saveFileDialog.Title = $"Сохранить {description.ToLower()}";
+
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        System.IO.File.WriteAllText(saveFileDialog.FileName, content, System.Text.Encoding.UTF8);
+                        MessageBox.Show($"Файл успешно сохранён:\n{saveFileDialog.FileName}", "Сохранено",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при сохранении файла:\n{ex.Message}", "Ошибка",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void buttonEncode_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var edges = EdgeParser.ParseEdges(textBoxEdges.Text);
+                var prufer = PruferEncoder.EncodeToPrufer(edges);
+                textBoxPrufer.Text = string.Join(" ", prufer);
+                DrawTree(edges, drawingPanel);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при кодировании:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void buttonDecode_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var prufer = EdgeParser.ParsePrufer(textBoxPrufer.Text);
+                var edges = PruferDecoder.DecodeFromPrufer(prufer);
+                textBoxEdges.Text = string.Join(",", edges.Select(edge => $"({edge.Item1},{edge.Item2})"));
+                DrawTree(edges, drawingPanel);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при декодировании:\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void рёбраToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveTextToFile(textBoxEdges.Text.Trim(), "Рёбра дерева", "edges.txt");
+        }
+
+        private void кодToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveTextToFile(textBoxPrufer.Text.Trim(), "Код Прюфера", "prufer.txt");
+        }
+
+        private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
+        { 
+            MessageBox.Show("Программа для кодирования и декодирования деревьев при помощи кода Прюфера\nбИЦ-241\nБирюков Никита\nВариант 4", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
+    // PruferEncoder.cs
+    public static class PruferEncoder
+    {
+        public static List<int> EncodeToPrufer(List<(int u, int v)> edges)
+        {
+            if (edges.Count == 0) return new List<int>();
+
+            var adjacency = new Dictionary<int, SortedSet<int>>();
+            foreach (var (u, v) in edges)
+            {
+                if (!adjacency.ContainsKey(u)) adjacency[u] = new SortedSet<int>();
+                if (!adjacency.ContainsKey(v)) adjacency[v] = new SortedSet<int>();
+                adjacency[u].Add(v);
+                adjacency[v].Add(u);
+            }
+
+            var degree = adjacency.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Count);
+            var prufer = new List<int>();
+            var vertices = adjacency.Keys.OrderBy(x => x).ToList();
+
+            for (int i = 0; i < edges.Count - 1; i++) // n = edges.Count + 1 → n - 2 = edges.Count - 1
+            {
+                int leaf = vertices.First(v => degree[v] == 1);
+                int neighbor = adjacency[leaf].Min;
+                prufer.Add(neighbor);
+                degree[leaf]--;
+                degree[neighbor]--;
+                adjacency[neighbor].Remove(leaf);
+                adjacency.Remove(leaf);
+                vertices.Remove(leaf);
+            }
+
+            return prufer;
+        }
+    }
+
+    // PruferDecoder.cs
+    public static class PruferDecoder
+    {
+        public static List<(int u, int v)> DecodeFromPrufer(List<int> prufer)
+        {
+            int n = prufer.Count + 2;
+            var degree = Enumerable.Range(1, n).ToDictionary(i => i, _ => 1);
+
+            foreach (int v in prufer)
+                degree[v]++;
+
+            var edges = new List<(int, int)>();
+            var leaves = new SortedSet<int>(degree.Keys.Where(v => degree[v] == 1));
+
+            foreach (int v in prufer)
+            {
+                int leaf = leaves.Min;
+                leaves.Remove(leaf);
+                edges.Add((leaf, v));
+                degree[leaf]--;
+                degree[v]--;
+
+                if (degree[v] == 1)
+                    leaves.Add(v);
+            }
+
+            var remaining = degree.Keys.Where(k => degree[k] == 1).ToList();
+            if (remaining.Count == 2)
+                edges.Add((remaining[0], remaining[1]));
+
+            return edges;
+        }
+    }
+
+    // EdgeParser.cs
+    public static class EdgeParser
+    {
+        public static List<(int u, int v)> ParseEdges(string input)
+        {
+            var edges = new List<(int, int)>();
+            string clean = input.Replace(" ", "");
+            if (string.IsNullOrWhiteSpace(clean)) return edges;
+
+            foreach (var part in clean.Trim('(', ')').Split(new[] { "),(" }, StringSplitOptions.None))
+            {
+                var nums = part.Split(',');
+                if (nums.Length != 2)
+                    throw new ArgumentException("Неверный формат рёбер.");
+                int u = int.Parse(nums[0]);
+                int v = int.Parse(nums[1]);
+                if (u == v)
+                    throw new ArgumentException("Петли запрещены.");
+                edges.Add((Math.Min(u, v), Math.Max(u, v)));
+            }
+
+            int n = edges.SelectMany(e => new[] { e.Item1, e.Item2 }).Distinct().Count();
+            if (edges.Count != n - 1)
+                throw new ArgumentException("Введённый граф не является деревом (должно быть n-1 рёбер).");
+
+            return edges;
+        }
+
+        public static List<int> ParsePrufer(string input)
+        {
+            var tokens = input.Split(new char[] { ' ', ',', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            return tokens.Select(int.Parse).ToList();
+        }
+    }
+
 }

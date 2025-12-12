@@ -33,25 +33,32 @@
             buttonEncode = new Button();
             buttonDecode = new Button();
             drawingPanel = new Panel();
+            menuStrip1 = new MenuStrip();
+            файлToolStripMenuItem = new ToolStripMenuItem();
+            сохранитьToolStripMenuItem = new ToolStripMenuItem();
+            рёбраToolStripMenuItem = new ToolStripMenuItem();
+            кодToolStripMenuItem = new ToolStripMenuItem();
+            оПрограммеToolStripMenuItem = new ToolStripMenuItem();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // textBoxEdges
             // 
-            textBoxEdges.Location = new Point(340, 524);
+            textBoxEdges.Location = new Point(344, 562);
             textBoxEdges.Name = "textBoxEdges";
             textBoxEdges.Size = new Size(180, 23);
             textBoxEdges.TabIndex = 2;
             // 
             // textBoxPrufer
             // 
-            textBoxPrufer.Location = new Point(631, 524);
+            textBoxPrufer.Location = new Point(635, 562);
             textBoxPrufer.Name = "textBoxPrufer";
             textBoxPrufer.Size = new Size(185, 23);
             textBoxPrufer.TabIndex = 3;
             // 
             // buttonEncode
             // 
-            buttonEncode.Location = new Point(388, 553);
+            buttonEncode.Location = new Point(392, 591);
             buttonEncode.Name = "buttonEncode";
             buttonEncode.Size = new Size(100, 23);
             buttonEncode.TabIndex = 4;
@@ -61,7 +68,7 @@
             // 
             // buttonDecode
             // 
-            buttonDecode.Location = new Point(680, 553);
+            buttonDecode.Location = new Point(684, 591);
             buttonDecode.Name = "buttonDecode";
             buttonDecode.Size = new Size(98, 23);
             buttonDecode.TabIndex = 5;
@@ -71,10 +78,54 @@
             // 
             // drawingPanel
             // 
-            drawingPanel.Location = new Point(31, 12);
+            drawingPanel.Location = new Point(35, 50);
             drawingPanel.Name = "drawingPanel";
             drawingPanel.Size = new Size(1073, 466);
             drawingPanel.TabIndex = 6;
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, оПрограммеToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(1130, 24);
+            menuStrip1.TabIndex = 7;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // файлToolStripMenuItem
+            // 
+            файлToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { сохранитьToolStripMenuItem });
+            файлToolStripMenuItem.Name = "файлToolStripMenuItem";
+            файлToolStripMenuItem.Size = new Size(48, 20);
+            файлToolStripMenuItem.Text = "Файл";
+            // 
+            // сохранитьToolStripMenuItem
+            // 
+            сохранитьToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { рёбраToolStripMenuItem, кодToolStripMenuItem });
+            сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
+            сохранитьToolStripMenuItem.Size = new Size(234, 22);
+            сохранитьToolStripMenuItem.Text = "Сохранить в текстовый файл";
+            // 
+            // рёбраToolStripMenuItem
+            // 
+            рёбраToolStripMenuItem.Name = "рёбраToolStripMenuItem";
+            рёбраToolStripMenuItem.Size = new Size(180, 22);
+            рёбраToolStripMenuItem.Text = "Рёбра";
+            рёбраToolStripMenuItem.Click += рёбраToolStripMenuItem_Click;
+            // 
+            // кодToolStripMenuItem
+            // 
+            кодToolStripMenuItem.Name = "кодToolStripMenuItem";
+            кодToolStripMenuItem.Size = new Size(180, 22);
+            кодToolStripMenuItem.Text = "Код";
+            кодToolStripMenuItem.Click += кодToolStripMenuItem_Click;
+            // 
+            // оПрограммеToolStripMenuItem
+            // 
+            оПрограммеToolStripMenuItem.Name = "оПрограммеToolStripMenuItem";
+            оПрограммеToolStripMenuItem.Size = new Size(94, 20);
+            оПрограммеToolStripMenuItem.Text = "О программе";
+            оПрограммеToolStripMenuItem.Click += оПрограммеToolStripMenuItem_Click;
             // 
             // Form1
             // 
@@ -86,8 +137,12 @@
             Controls.Add(buttonEncode);
             Controls.Add(textBoxPrufer);
             Controls.Add(textBoxEdges);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             Name = "Form1";
             Text = "Form1";
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -98,5 +153,11 @@
         private Button buttonEncode;
         private Button buttonDecode;
         private Panel drawingPanel;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem файлToolStripMenuItem;
+        private ToolStripMenuItem сохранитьToolStripMenuItem;
+        private ToolStripMenuItem рёбраToolStripMenuItem;
+        private ToolStripMenuItem кодToolStripMenuItem;
+        private ToolStripMenuItem оПрограммеToolStripMenuItem;
     }
 }
